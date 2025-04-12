@@ -46,6 +46,13 @@ async function updateCredits() {
     const contests = await Contest.find({});
 
     for (const contest of contests) {
+      // Check if all problems already have credits
+      const allCreditsExist = contest.problems.every(problem => problem.credit !== undefined);
+      if (allCreditsExist) {
+        console.log(`Credits already exist for all problems in ${contest.titleSlug}`);
+        continue;
+      }
+
       const updatedProblems = await fetchCreditsForContest(contest.titleSlug);
 
       if (updatedProblems.length === 0) {
