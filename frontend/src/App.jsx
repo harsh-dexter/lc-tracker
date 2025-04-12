@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
+import LoginPage from "./features/auth/pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -65,10 +65,21 @@ function App() {
   }, []);
 
   if (loading) {
+    // Skeleton matching LoginPage structure
     return (
-      <div className="p-4">
-        <Skeleton height={30} width={200} />
-        <Skeleton count={5} />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-md w-full space-y-8 p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+          <div className="text-center space-y-4">
+            {/* Skeleton for Title */}
+            <Skeleton height={36} width={250} className="mx-auto" />
+            {/* Skeleton for Subtitle */}
+            <Skeleton height={20} width={300} className="mx-auto" />
+          </div>
+          <div className="mt-8">
+            {/* Skeleton for Button */}
+            <Skeleton height={40} />
+          </div>
+        </div>
       </div>
     );
   }

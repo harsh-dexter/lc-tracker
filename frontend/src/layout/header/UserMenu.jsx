@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { UserIcon } from '../icons/Icons';
-import LeetcodeKeyForm from '../LeetcodeKeyForm';
+import { UserIcon } from '../../common/components/icons/Icons';
+import LeetcodeKeyForm from '../../components/LeetcodeKeyForm';
 import useDropdown from '../../hooks/useDropdown';
 import useApiKeySubmission from '../../hooks/useApiKeySubmission';
 

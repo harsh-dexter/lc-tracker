@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../App';
 import axios from 'axios';
-import Header from '../components/Header';
-import ContestGrid from '../components/ContestGrid';
-import Pagination from '../components/Pagination';
-import SearchSection from '../components/search/SearchSection';
+import Header from '../layout/header/Header';
+import ContestGrid from '../features/contest/components/ContestGrid';
+import Pagination from '../common/components/Pagination';
+import SearchSection from '../features/search/components/search/SearchSection';
 import SyncButton from '../components/SyncButton';
-import { refreshVisibleProblemStatuses } from '../utils/problemStatusRefresh';
-import useDashboardData from '../hooks/useDashboardData';
-import useSearch from '../hooks/useSearch';
+import { refreshVisibleProblemStatuses } from '../features/contest/utils/problemStatusRefresh';
+import useDashboardData from '../features/contest/hooks/useDashboardData';
+import useSearch from '../features/search/hooks/useSearch';
 import { checkLeetCodeKeyStatus } from '../utils/userDiagnostic';
 
 function DashboardPage({ isDarkMode, toggleDarkMode }) {

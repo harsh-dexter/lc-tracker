@@ -1,5 +1,5 @@
 import React from 'react';
-import { SunIcon, MoonIcon } from '../icons/Icons';
+import { SunIcon, MoonIcon } from '../../common/components/icons/Icons';
 
 const DarkModeToggle = ({ isDarkMode, toggleDarkMode }) => {
   return (

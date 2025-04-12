@@ -1,5 +1,5 @@
 import React from 'react';
-import ProblemStatusCell from './ProblemStatusCell';
+import ProblemStatusCell from '../../../components/ProblemStatusCell';
 
 const ContestRow = ({ contest, userStatuses, highlightMatches = false }) => {
   const problems = contest.problems.slice(0, 4);

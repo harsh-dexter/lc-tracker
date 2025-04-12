@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import debounce from '../utils/debounce';
+import debounce from '../../../utils/debounce';
 import { fetchSearchResults } from '../services/searchService';
 
 /**

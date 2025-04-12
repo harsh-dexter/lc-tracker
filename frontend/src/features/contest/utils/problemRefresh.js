@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { saveProblemStatus } from './indexedDbStorage';
+import { saveProblemStatus } from '../../../utils/indexedDbStorage';
 
 /**
  * Refresh problem statuses in batches

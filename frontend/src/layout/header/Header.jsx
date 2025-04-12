@@ -1,6 +1,6 @@
 import React from 'react';
-import DarkModeToggle from './header/DarkModeToggle';
-import UserMenu from './header/UserMenu';
+import DarkModeToggle from './DarkModeToggle';
+import UserMenu from './UserMenu';
 
 const Header = ({ user, onLogout, isDarkMode, toggleDarkMode, onUserUpdate }) => {
   return (

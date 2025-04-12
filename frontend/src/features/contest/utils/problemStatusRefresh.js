@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { storeProblemStatus } from './problemStatusStorage';
-import { checkProblemSolved } from '../services/leetcodeService';
+import { storeProblemStatus } from '../../../utils/problemStatusStorage';
+import { checkProblemSolved } from '../../../services/leetcodeService';
 
 /**
  * Refreshes the status of multiple problems at once
