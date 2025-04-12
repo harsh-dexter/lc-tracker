@@ -21,14 +21,16 @@ const useApiKeySubmission = (onUpdateUser, onSuccess) => {
         leetcodeSessionKey: key
       });
       
-      // Fetch updated user profile
-      const userResponse = await axios.get('/api/profile');
+      // Use the user data directly from the POST response
+      const updatedUserData = response.data?.user; 
       
-      if (userResponse.status === 200) {
+      if (updatedUserData && typeof onUpdateUser === 'function') {
         // Notify parent component about the updated user data
-        if (typeof onUpdateUser === 'function') {
-          onUpdateUser(userResponse.data);
-        }
+        onUpdateUser(updatedUserData); 
+      } else if (typeof onUpdateUser === 'function') {
+        // Fallback or error handling if user data isn't in response
+        console.warn("POST response did not contain updated user data. Refetching might be needed.");
+        // Optionally, could still make the GET request here as a fallback
       }
       
       // Call success callback if provided

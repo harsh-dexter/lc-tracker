@@ -1,13 +1,16 @@
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./features/auth/pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
+import DashboardPage from "./features/dashboard/DashboardPage"; // Updated import path
+import CreditsPage from "./pages/CreditsPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import DisclaimerPage from "./pages/DisclaimerPage"; // Import DisclaimerPage
+import Layout from "./layout/Layout";
+import { AuthContext } from "./context/AuthContext"; // Import from the new file
+import LayoutSkeleton from "./components/skeletons/LayoutSkeleton"; // Import the Layout skeleton
+import { checkLeetCodeKeyStatus } from "./utils/userDiagnostic"; // Import the frontend check utility
 
-// Context
-export const AuthContext = createContext(null);
-export const useAuth = () => useContext(AuthContext);
+// Context removed from here
 
 function App() {
   const [user, setUser] = useState(null);
@@ -48,63 +51,63 @@ function App() {
           }
           return res.json();
        })
-       .then((data) => {
-         // console.log('Auth status data received:', data); // Already logged above
-         if (data.isAuthenticated) {
-           console.log('User is authenticated, setting user state:', data.user); // Log: Success case
-          setUser(data.user);
+       .then(async (data) => { // Make this async to await the frontend check
+         if (data.isAuthenticated && data.user) {
+           console.log('User is authenticated via backend, performing frontend key check...');
+           try {
+             // Perform frontend check *before* setting the final state
+             const frontendHasKey = await checkLeetCodeKeyStatus();
+             console.log(`Frontend key check result: ${frontendHasKey}`);
+             // Set user state with the validated key status
+             setUser({ ...data.user, hasLeetCodeKey: frontendHasKey });
+           } catch (checkError) {
+             console.error("Error during frontend key check:", checkError);
+             // Fallback: Set user but assume no valid key if check fails
+             setUser({ ...data.user, hasLeetCodeKey: false });
+           }
          } else {
-           console.log('User is not authenticated according to response.'); // Log: Failure case
+           console.log('User is not authenticated according to backend response.');
+           setUser(null); // Ensure user is null if not authenticated
          }
-         setLoading(false);
+         setLoading(false); // Set loading false after all checks
        })
        .catch((error) => {
-         console.error("Error checking auth status:", error.message, error); // Log: Fetch error details
+         console.error("Error fetching auth status:", error.message, error); // Log: Fetch error details
         setLoading(false);
       });
   }, []);
 
   if (loading) {
-    // Skeleton matching LoginPage structure
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-md w-full space-y-8 p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-          <div className="text-center space-y-4">
-            {/* Skeleton for Title */}
-            <Skeleton height={36} width={250} className="mx-auto" />
-            {/* Skeleton for Subtitle */}
-            <Skeleton height={20} width={300} className="mx-auto" />
-          </div>
-          <div className="mt-8">
-            {/* Skeleton for Button */}
-            <Skeleton height={40} />
-          </div>
-        </div>
-      </div>
-    );
+    // Show LayoutSkeleton during initial auth check for a better UX for returning users
+    return <LayoutSkeleton />;
   }
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
-      <Routes>
-        <Route
-          path="/"
-          element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />}
-        />
-        <Route
-          path="/dashboard"
-          element={
-            user ? (
-              <DashboardPage
-                isDarkMode={isDarkMode}
-                toggleDarkMode={toggleDarkMode}
-              />
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
-      </Routes>
+      {/* Pass theme state and toggle function to Layout */}
+      <Layout isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode}> 
+        <Routes>
+          <Route
+            path="/"
+            element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+          />
+          <Route
+            path="/dashboard"
+            element={
+              user ? (
+                // Remove theme props from DashboardPage, they are handled by Layout now
+                <DashboardPage /> 
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          {/* Add routes for Credits, Privacy Policy, and Disclaimer */}
+          <Route path="/credits" element={<CreditsPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/disclaimer" element={<DisclaimerPage />} /> 
+        </Routes>
+      </Layout>
     </AuthContext.Provider>
   );
 }

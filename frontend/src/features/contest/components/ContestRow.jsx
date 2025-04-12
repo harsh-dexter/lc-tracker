@@ -1,7 +1,8 @@
 import React from 'react';
 import ProblemStatusCell from '../../../components/ProblemStatusCell';
 
-const ContestRow = ({ contest, userStatuses, highlightMatches = false }) => {
+// Add userId and hasLeetcodeKey to props
+const ContestRow = ({ contest, userStatuses, highlightMatches = false, userId, hasLeetcodeKey }) => {
   const problems = contest.problems.slice(0, 4);
 
   return (
@@ -60,8 +61,8 @@ const ContestRow = ({ contest, userStatuses, highlightMatches = false }) => {
         <ProblemStatusCell
           key={problem.titleSlug}
           problem={problem}
-          userId={'current'} // This needs to be passed down from parent
-          hasLeetcodeKey={true} // This should be passed from parent
+          userId={userId} // Pass down the received userId prop
+          hasLeetcodeKey={hasLeetcodeKey} // Pass down the received hasLeetcodeKey prop
           initialStatus={userStatuses[problem.titleSlug]}
         />
       ))}

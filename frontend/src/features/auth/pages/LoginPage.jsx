@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useAuth } from '../../../App';
+import { useAuth } from '../../../context/AuthContext'; // Updated import path
 
 
 // Load environment variables

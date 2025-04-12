@@ -45,9 +45,11 @@ const UserMenu = ({ user, onLogout, onUserUpdate }) => {
       {isOpen && (
         // Use card background, softer ring/shadow
         <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-md py-1 bg-white dark:bg-gray-800 ring-1 ring-black/5 dark:ring-gray-700 focus:outline-none z-20 top-full">
-          {/* Softer text */}
+          {/* Display User Info */}
+          {/* Display User Info - Removed LeetCode username */}
           <div className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
-            Signed in as <br/> <span className="font-medium text-gray-800 dark:text-gray-100">{user.displayName}</span>
+            <div>Signed in as</div>
+            <div className="font-medium text-gray-800 dark:text-gray-100 truncate mt-1">{user.displayName}</div>
           </div>
 
           <div className="border-t border-gray-100 dark:border-gray-700"></div>

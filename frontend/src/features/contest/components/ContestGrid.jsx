@@ -1,9 +1,13 @@
 import React from 'react';
 import ContestRow from './ContestRow';
+import ContestGridSkeleton from '../../../components/skeletons/ContestGridSkeleton'; // Use relative path
 
 const ContestGrid = ({ contests, userStatuses, loading, error, highlightMatches = false, userId, hasLeetcodeKey }) => {
-  // Add dark mode styling to loading/empty messages
-  if (loading) return <p className="text-gray-600 dark:text-gray-300">Loading contest data...</p>;
+
+  // Use the reusable ContestGridSkeleton component when loading
+  if (loading) return <ContestGridSkeleton />;
+
+  if (error) return <p className="text-red-600 dark:text-red-400">Error loading data: {error}</p>;
 
   if (contests.length === 0) {
     return (

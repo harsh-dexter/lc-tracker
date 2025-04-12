@@ -3,8 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 import axios from 'axios';
 import App from './App';
+import 'react-loading-skeleton/dist/skeleton.css'; // Import default skeleton styles FIRST
 import './styles/responsive.css'; // Import responsive styles
-import './styles/darkTheme.css'; // Import improved dark theme
+import './styles/darkTheme.css'; // Import dark theme overrides AFTER defaults
 
 // Set the base URL for all Axios requests using the environment variable
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;

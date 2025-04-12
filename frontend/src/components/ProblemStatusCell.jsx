@@ -80,97 +80,68 @@ const ProblemStatusCell = ({ problem, userId, hasLeetcodeKey, initialStatus }) =
   const checkProblemStatus = useCallback(async () => {
     if (hasCheckedRef.current) return;
     hasCheckedRef.current = true;
-    
+
     setIsLoading(true);
     logWithTime(`${problem.titleSlug} is visible, checking status... (hasLeetcodeKey: ${hasLeetcodeKey})`);
-    
-    logWithTime(`User ID: ${userId}, hasLeetcodeKey: ${hasLeetcodeKey}`);
-    
+
     try {
-      // Step 1: Try IndexedDB first
+      // Step 1: Try IndexedDB first for a FRESH status
       logWithTime(`Checking IndexedDB for ${problem.titleSlug}...`);
       const cachedStatus = await getProblemStatusFromIndexedDB(userId, problem.titleSlug);
-      
-      // If we have a fresh cached status, use it
+
       if (cachedStatus && !isStatusStale(cachedStatus)) {
         logWithTime(`Using fresh IndexedDB cache for ${problem.titleSlug}: ${cachedStatus.isSolved}`);
         setIsSolved(cachedStatus.isSolved);
+        setIsLoading(false); // Stop loading early if fresh cache found
         return;
       }
-      
-      // If cache is stale, log how old it is
+
+      // Log if cache is stale
       if (cachedStatus) {
         const ageMs = Date.now() - cachedStatus.lastChecked;
         const ageMinutes = Math.floor(ageMs / 60000);
         logWithTime(`Cache for ${problem.titleSlug} is stale (${ageMinutes} minutes old)`);
       }
-      
-      // Step 2: If we have a LeetCode key, fetch from API
+
+      // Step 2: Check if we have the LeetCode key
       logWithTime(`hasLeetcodeKey value: ${hasLeetcodeKey}`);
       if (hasLeetcodeKey) {
+        // Step 2a: Has key, attempt API call
         logWithTime(`Has LeetCode key, will attempt API call for ${problem.titleSlug}`);
         try {
           const status = await fetchProblemStatus(problem.titleSlug);
-          
-          // Save to IndexedDB
           logWithTime(`Saving to IndexedDB: ${problem.titleSlug} = ${status}`);
           await saveProblemStatusToIndexedDB(userId, problem.titleSlug, status);
-          
           setIsSolved(status);
-          return;
         } catch (apiError) {
-          // If API call fails, log and fall through to fallbacks
+          // API failed, use fallbacks: stale cache > initialStatus > false
           logWithTime(`API call failed for ${problem.titleSlug}, using fallbacks: ${apiError.message}`);
-          
-          // If we have a stale cache, use it rather than failing completely
           if (cachedStatus) {
             logWithTime(`Falling back to stale cache for ${problem.titleSlug}: ${cachedStatus.isSolved}`);
             setIsSolved(cachedStatus.isSolved);
-            return;
-          }
-          
-          // If we have initialStatus but no cache, use that
-          if (initialStatus !== undefined) {
+          } else if (initialStatus !== undefined) {
             logWithTime(`Falling back to initialStatus for ${problem.titleSlug}: ${initialStatus}`);
             setIsSolved(initialStatus);
-            return;
+            // Cache the initialStatus if API failed and no cache existed
+            await saveProblemStatusToIndexedDB(userId, problem.titleSlug, initialStatus);
+          } else {
+            logWithTime(`No fallbacks available after API error for ${problem.titleSlug}, defaulting to false`);
+            setIsSolved(false);
           }
-          
-          // If all else fails, mark as unsolved
-          logWithTime(`No fallbacks available for ${problem.titleSlug}, defaulting to false`);
-          setIsSolved(false);
-          return;
         }
       } else {
-        logWithTime(`Skipping API call - no LeetCode key available for user ${userId}`);
-      }
-      
-      // Step 3: If no API access but we have initialStatus, use and cache it
-      if (initialStatus !== undefined) {
-        logWithTime(`Using MongoDB-provided initialStatus: ${initialStatus}`);
-        await saveProblemStatusToIndexedDB(userId, problem.titleSlug, initialStatus);
-        setIsSolved(initialStatus);
-        return;
-      }
-      
-      // Step 4: Fall back to cached value (even if stale) or false
-      if (cachedStatus) {
-        logWithTime(`Using stale cache: ${problem.titleSlug} = ${cachedStatus.isSolved}`);
-        setIsSolved(cachedStatus.isSolved);
-      } else {
-        logWithTime(`No status available for ${problem.titleSlug}, defaulting to false`);
+        // Step 2b: No key, default to false (since fresh cache wasn't found in Step 1)
+        logWithTime(`Skipping API call - no LeetCode key available for user ${userId}. Defaulting status to false for ${problem.titleSlug}.`);
         setIsSolved(false);
+        // Do not cache 'false' derived purely from lack of key, as it's not confirmed.
       }
     } catch (error) {
       console.error(`Error checking status for ${problem.titleSlug}:`, error);
-      
-      // On error, use cache > initialStatus > false (in that order)
-      const cachedStatus = await getProblemStatusFromIndexedDB(userId, problem.titleSlug)
-        .catch(() => null);
-      
-      if (cachedStatus) {
-        logWithTime(`Error recovery: using cached status ${cachedStatus.isSolved}`);
-        setIsSolved(cachedStatus.isSolved);
+      // On general error, use fallbacks: stale cache > initialStatus > false
+      const cachedStatusOnError = await getProblemStatusFromIndexedDB(userId, problem.titleSlug).catch(() => null);
+      if (cachedStatusOnError) {
+        logWithTime(`Error recovery: using cached status ${cachedStatusOnError.isSolved}`);
+        setIsSolved(cachedStatusOnError.isSolved);
       } else if (initialStatus !== undefined) {
         logWithTime(`Error recovery: using initialStatus ${initialStatus}`);
         setIsSolved(initialStatus);
