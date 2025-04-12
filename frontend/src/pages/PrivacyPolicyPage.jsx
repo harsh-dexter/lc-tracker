@@ -116,7 +116,7 @@ function PrivacyPolicyPage() {
               {contactEmail}
             </a>
             <br />
-            (Replace with your actual email, of course!)
+            (anon.developer.chat@gmail.com)
           </p>
         </section>
       </div>
