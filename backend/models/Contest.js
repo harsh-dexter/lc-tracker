@@ -39,6 +39,10 @@ const contestSchema = new mongoose.Schema({
         type: String,
         default: '',
     },
+    link2: { // Optional second URL (e.g., from a different channel)
+        type: String,
+        default: '',
+    },
     problems: [problemSchema], // Array of problems in the contest
     lastFetched: { // Timestamp of when this contest data was last updated
         type: Date,
