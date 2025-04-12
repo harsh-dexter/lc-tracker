@@ -1,8 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import strip from '@rollup/plugin-strip';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Only apply in production
+    process.env.NODE_ENV === 'production' &&
+      strip({
+        include: '**/*.(js|ts|jsx|tsx)',
+        functions: ['console.log', 'console.debug', 'console.info']
+      })
+  ],
   server: {
     port: 5173,
     proxy: {
