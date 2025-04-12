@@ -7,7 +7,7 @@ function PrivacyPolicyPage() {
   }, []);
 
   // Placeholder Email - replace this!
-  const contactEmail = "[your-email@example.com]"; 
+  const contactEmail = "[anon.developer.chat@gmail.com]"; 
 
   return (
     // Removed card styling (bg, shadow, rounded, border), kept padding and margin
@@ -116,7 +116,6 @@ function PrivacyPolicyPage() {
               {contactEmail}
             </a>
             <br />
-            (anon.developer.chat@gmail.com)
           </p>
         </section>
       </div>

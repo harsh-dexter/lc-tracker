@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react'; // Import useRef
 import axios from 'axios';
 
 const useDashboardData = () => {
@@ -8,8 +8,22 @@ const useDashboardData = () => {
   const [isLastPage, setIsLastPage] = useState(false);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const dataCache = useRef({}); // Use useRef for cache to avoid re-renders on cache update
 
   const fetchDashboardData = useCallback(async (page) => {
+    // Check cache first
+    if (dataCache.current[page]) {
+      // console.log(`[useDashboardData] Cache hit for page ${page}. Loading from cache.`); // Optional: Log cache hit
+      const cachedData = dataCache.current[page];
+      setContests(cachedData.contests);
+      setUserStatuses(cachedData.userStatuses);
+      setIsLastPage(cachedData.isLastPage);
+      setLoading(false);
+      setError(''); // Clear any previous error
+      return; // Exit early
+    }
+
+    // console.log(`[useDashboardData] Cache miss for page ${page}. Fetching from API.`); // Optional: Log cache miss
     setLoading(true);
     setError('');
     try {
@@ -39,13 +53,24 @@ const useDashboardData = () => {
       const isLast = fetchedContests.length < 10;
       // console.log(`[useDashboardData] Setting isLastPage to: ${isLast} (based on fetched ${fetchedContests.length} < 10)`); // Removed log
       setIsLastPage(isLast);
+
+      // Store fetched data in cache
+      dataCache.current[page] = {
+        contests: pastOrPresentContests,
+        userStatuses: res.data.userStatuses || {},
+        isLastPage: isLast,
+      };
+      // console.log(`[useDashboardData] Stored data for page ${page} in cache.`); // Optional: Log cache store
+
     } catch (err) {
       console.error('Dashboard data fetch error:', err);
       setError('Failed to load dashboard data');
+      // Clear potentially stale data on error? Maybe not, depends on desired UX.
     } finally {
       setLoading(false);
     }
     // Add state setters to dependency array for safety, though they are stable.
+    // dataCache is a ref, so it doesn't need to be in the dependency array.
   }, [setLoading, setError, setContests, setUserStatuses, setIsLastPage]);
 
   return {

@@ -7,7 +7,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import DisclaimerPage from "./pages/DisclaimerPage"; // Import DisclaimerPage
 import Layout from "./layout/Layout";
 import { AuthContext } from "./context/AuthContext"; // Import from the new file
-import LayoutSkeleton from "./components/skeletons/LayoutSkeleton"; // Import the Layout skeleton
+import LoginCardSkeleton from "./components/skeletons/LoginCardSkeleton"; // Import the Login Card skeleton
 import { checkLeetCodeKeyStatus } from "./utils/userDiagnostic"; // Import the frontend check utility
 
 // Context removed from here
@@ -78,8 +78,13 @@ function App() {
   }, []);
 
   if (loading) {
-    // Show LayoutSkeleton during initial auth check for a better UX for returning users
-    return <LayoutSkeleton />;
+    // Show LoginCardSkeleton during initial auth check
+    // It provides a better placeholder before the login page might appear
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoginCardSkeleton />
+      </div>
+    );
   }
 
   return (

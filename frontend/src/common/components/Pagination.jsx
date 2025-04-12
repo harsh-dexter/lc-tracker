@@ -9,7 +9,8 @@ const Pagination = ({ currentPage, onPrev, onNext, isLastPage, loading }) => (
     >
       Previous
     </button>
-    <span className="text-sm text-gray-600 font-medium">Page {currentPage}</span>
+    {/* Added dark mode text color */}
+    <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">Page {currentPage}</span>
     <button
       onClick={onNext}
       disabled={isLastPage || loading}
