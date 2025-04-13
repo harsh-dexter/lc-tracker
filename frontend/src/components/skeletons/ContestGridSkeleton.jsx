@@ -1,78 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css'; // Import skeleton CSS
+import React from 'react';
 
-const ContestGridSkeleton = ({ rows = 5, cols = 6 }) => {
-  // Initialize state based on current document class for immediate correctness
-  const [isDarkMode, setIsDarkMode] = useState(
-    () => typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
-  );
-
-  useEffect(() => {
-    // Check dark mode on mount and listen for changes
-    const checkDarkMode = () => {
-      setIsDarkMode(document.documentElement.classList.contains('dark'));
-    };
-    checkDarkMode();
-    const observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
-
-  // Define colors based on dark mode state
-  const baseColor = isDarkMode ? "#374151" : "#e5e7eb"; // gray-700 : gray-200
-  const highlightColor = isDarkMode ? "#4b5563" : "#d1d5db"; // gray-600 : gray-300
-  // Use Tailwind classes for background/hover where possible, as they handle dark mode automatically
-  // const headerBg = isDarkMode ? 'rgba(55, 65, 81, 0.4)' : 'rgba(229, 231, 235, 0.4)'; // bg-muted/40 equivalent
-  // const rowHoverBg = isDarkMode ? 'rgba(55, 65, 81, 0.2)' : 'rgba(229, 231, 235, 0.2)'; // hover:bg-muted/20 equivalent
-
+const ContestGridSkeleton = () => {
+  // Reduce the number of skeleton rows from 5 to 3
+  const skeletonRows = Array(3).fill(0);
+  
   return (
-    <div className="rounded-md border border-border overflow-hidden">
-      <table className="w-full">
-        <thead>
-          <tr className="bg-muted/40"> {/* Use Tailwind class for header background */}
-            {Array.from({ length: cols }).map((_, colIndex) => (
-              <th key={colIndex} className={`p-2 ${colIndex === 0 ? 'w-[200px]' : 'w-[100px]'} text-center font-medium text-muted-foreground`}>
-                <Skeleton
-                  height={20}
-                  width={colIndex === 0 ? '75%' : '50%'}
-                  baseColor={baseColor}
-                  highlightColor={highlightColor}
-                  style={{ margin: '0 auto' }}
-                />
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: rows }).map((_, rowIndex) => (
-            <tr key={rowIndex} className="border-b border-border hover:bg-muted/20"> {/* Use Tailwind classes for border/hover */}
-              {Array.from({ length: cols }).map((_, colIndex) => (
-                <td key={colIndex} className="p-0 text-center">
-                  <div className="flex items-center justify-center h-12">
-                    {colIndex === 0 ? (
-                      <Skeleton
-                        height={20}
-                        width={'75%'}
-                        baseColor={baseColor}
-                        highlightColor={highlightColor}
-                      />
-                    ) : (
-                      <Skeleton
-                        circle
-                        height={24}
-                        width={24}
-                        baseColor={baseColor}
-                        highlightColor={highlightColor}
-                      />
-                    )}
-                  </div>
-                </td>
+    <div className="overflow-x-auto sm:overflow-visible max-h-[70vh]">
+      {/* Match the grid structure exactly */}
+      <div className="sm:grid sm:grid-cols-[auto_repeat(4,minmax(0,1fr))] w-full gap-x-4 gap-y-2 block">
+        {/* Replace text headers with skeleton placeholders */}
+        <div className="hidden sm:block p-3 border-b-2 border-gray-200 dark:border-gray-600">
+          <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-24"></div>
+        </div>
+        <div className="hidden sm:flex justify-center p-3 border-b-2 border-gray-200 dark:border-gray-600">
+          <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-20"></div>
+        </div>
+        <div className="hidden sm:flex justify-center p-3 border-b-2 border-gray-200 dark:border-gray-600">
+          <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-20"></div>
+        </div>
+        <div className="hidden sm:flex justify-center p-3 border-b-2 border-gray-200 dark:border-gray-600">
+          <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-20"></div>
+        </div>
+        <div className="hidden sm:flex justify-center p-3 border-b-2 border-gray-200 dark:border-gray-600">
+          <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-20"></div>
+        </div>
+        
+        {/* Skeleton rows with mobile view support */}
+        <div className="sm:contents block space-y-4 mb-4">
+          {skeletonRows.map((_, index) => (
+            <div key={index} className="sm:contents block bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+              {/* Contest title cell - reduced height */}
+              <div className="p-2 border-b border-gray-200 dark:border-gray-600 sm:border-t sm:border-l">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4 mb-1"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/2"></div>
+              </div>
+              
+              {/* Problem cells - 4 of them, with reduced height */}
+              {Array(4).fill(0).map((_, problemIndex) => (
+                <div 
+                  key={problemIndex} 
+                  className="p-2 border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 sm:border-t-0 sm:border-l-0 border-t border-l border-r border-gray-200 dark:border-gray-700 sm:border-r-0 sm:rounded-none rounded-sm mt-1 sm:mt-0 mx-1 sm:mx-0"
+                >
+                  {/* Problem title - smaller */}
+                  <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-4/5 mb-2"></div>
+                  
+                  {/* Status indicator - smaller */}
+                  <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded animate-pulse w-1/3"></div>
+                </div>
               ))}
-            </tr>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      </div>
     </div>
   );
 };

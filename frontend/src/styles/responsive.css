@@ -119,6 +119,12 @@ html, body {
     margin-top: 0.5rem;
     margin-left: 0 !important;
   }
+  
+  /* Login card skeleton responsive adjustments */
+  .max-w-md {
+    max-width: 90% !important;
+    padding: 1rem !important;
+  }
 }
 
 /* Medium screens (tablets) */

@@ -97,8 +97,13 @@ router.post('/leetcode-key', ensureAuth, async (req, res) => {
         // leetcodeRealName: leetcodeRealName, 
         // leetcodeAvatar: leetcodeAvatar,
       },
-      { new: true, select: '+leetcodeSessionKey +leetcodeUsername' } // Return updated doc and select fields explicitly if needed
-    ).select('-__v'); // Exclude version key
+      { 
+        new: true, 
+        // Use a single projection that includes only what we need
+        // Rather than mixing inclusion and exclusion
+        select: '+leetcodeSessionKey +leetcodeUsername displayName googleId email id' 
+      }
+    );
 
     if (!updatedUser) {
       // This case should be rare if ensureAuth works correctly
