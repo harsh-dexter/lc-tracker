@@ -10,6 +10,12 @@ const useDashboardData = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const dataCache = useRef({}); // Use useRef for cache to avoid re-renders on cache update
 
+  // Function to clear the cache
+  const clearCache = useCallback(() => {
+    // console.log("[useDashboardData] Clearing cache."); // Optional: Log cache clear
+    dataCache.current = {};
+  }, []); // No dependencies needed
+
   const fetchDashboardData = useCallback(async (page) => {
     // Check cache first
     if (dataCache.current[page]) {
@@ -85,7 +91,8 @@ const useDashboardData = () => {
     setError,
     currentPage,
     setCurrentPage,
-    fetchDashboardData
+    fetchDashboardData,
+    clearCache // Expose the clearCache function
   };
 };
 

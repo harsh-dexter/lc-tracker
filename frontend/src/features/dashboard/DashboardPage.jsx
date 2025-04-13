@@ -27,7 +27,8 @@ function DashboardPage() {
     error,
     currentPage,
     setCurrentPage,
-    fetchDashboardData
+    fetchDashboardData,
+    clearCache // Get the clearCache function from the hook
   } = useDashboardData(); // Use the hook from the dashboard feature
 
   const {
@@ -59,6 +60,9 @@ function DashboardPage() {
   const handleUserUpdate = useCallback(async (updatedUser) => {
     setUser(updatedUser);
     setStatusMessage("LeetCode key added successfully! Refreshing your data...");
+
+    // Clear the cache before refetching
+    clearCache(); 
 
     // Refetch dashboard data regardless of search state after key update
     await fetchDashboardData(1); // Fetch page 1 after key update
@@ -93,7 +97,8 @@ function DashboardPage() {
     }
 
     setTimeout(() => setStatusMessage(""), 3000);
-  }, [fetchDashboardData, contests, searchResults, isActiveSearch, setUser, setUserStatuses, setSearchUserStatuses, setCurrentPage]); // Added dependencies
+    // Add clearCache to the dependency array
+  }, [fetchDashboardData, clearCache, contests, searchResults, isActiveSearch, setUser, setUserStatuses, setSearchUserStatuses, setCurrentPage]); 
 
 
   // Handler for sync completion
