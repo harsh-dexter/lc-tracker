@@ -4,13 +4,17 @@ import LoginPage from "./features/auth/pages/LoginPage";
 import DashboardPage from "./features/dashboard/DashboardPage"; 
 import CreditsPage from "./pages/CreditsPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
-import DisclaimerPage from "./pages/DisclaimerPage"; 
+import DisclaimerPage from "./pages/DisclaimerPage";
+import ContestsPage from './features/contest/pages/ContestsPage';
+import SubmissionsPage from './features/submissions/pages/SubmissionsPage'; // Import the actual SubmissionsPage
 import Layout from "./layout/Layout";
-import { AuthContext } from "./context/AuthContext"; 
+import { AuthContext } from "./context/AuthContext";
 import LoginCardSkeleton from "./components/skeletons/LoginCardSkeleton"; 
 import ContestGridSkeleton from "./components/skeletons/ContestGridSkeleton";
 import LayoutSkeleton from "./components/skeletons/LayoutSkeleton"; // Import the new skeleton
-import { checkLeetCodeKeyStatus } from "./utils/userDiagnostic"; 
+import { checkLeetCodeKeyStatus } from "./utils/userDiagnostic";
+
+// Removed placeholder SubmissionsPage
 
 function App() {
   const [user, setUser] = useState(null);
@@ -124,7 +128,28 @@ function App() {
           />
           <Route path="/credits" element={<CreditsPage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
-          <Route path="/disclaimer" element={<DisclaimerPage />} /> 
+          <Route path="/disclaimer" element={<DisclaimerPage />} />
+          {/* New Routes */}
+          <Route
+            path="/contests"
+            element={
+              user ? (
+                <ContestsPage />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
+            path="/submissions"
+            element={
+              user ? (
+                <SubmissionsPage /> // Use the imported component
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
         </Routes>
       </Layout>
     </AuthContext.Provider>

@@ -1,8 +1,9 @@
 import { useState, useCallback, useRef } from 'react'; // Import useRef
 import axios from 'axios';
+import { useMemo } from 'react'; // Import useMemo
 
 const useDashboardData = () => {
-  const [contests, setContests] = useState([]);
+  const [rawContests, setRawContests] = useState([]); // Store all fetched contests
   const [userStatuses, setUserStatuses] = useState({});
   const [loading, setLoading] = useState(true);
   const [isLastPage, setIsLastPage] = useState(false);
@@ -19,9 +20,9 @@ const useDashboardData = () => {
   const fetchDashboardData = useCallback(async (page) => {
     // Check cache first
     if (dataCache.current[page]) {
-      // console.log(`[useDashboardData] Cache hit for page ${page}. Loading from cache.`); // Optional: Log cache hit
+      // console.log(`[useDashboardData] Cache hit for page ${page}. Loading from cache.`);
       const cachedData = dataCache.current[page];
-      setContests(cachedData.contests);
+      setRawContests(cachedData.rawContests); // Load raw from cache
       setUserStatuses(cachedData.userStatuses);
       setIsLastPage(cachedData.isLastPage);
       setLoading(false);
@@ -36,37 +37,24 @@ const useDashboardData = () => {
       // console.log(`[useDashboardData] Fetching data for page ${page}...`); // Removed log
       const res = await axios.get(`/api/dashboard-data?page=${page}`);
       const fetchedContests = Array.isArray(res.data.contests) ? res.data.contests : [];
-      // console.log(`[useDashboardData] Fetched ${fetchedContests.length} contests from API.`); // Removed log
+      // console.log(`[useDashboardData] Fetched ${fetchedContests.length} contests from API.`);
 
-      // Filter out upcoming contests
-      const now = new Date();
-      // Assuming contest.startTime is a comparable date string (e.g., ISO) or timestamp
-      const pastOrPresentContests = fetchedContests.filter(contest => {
-        // Add a check for valid startTime property
-        if (!contest.startTime) return false; 
-        try {
-          return new Date(contest.startTime) <= now;
-        } catch (e) {
-          console.error("Error parsing contest startTime:", contest.startTime, e);
-          return false; // Exclude if date parsing fails
-        }
-      });
-      // console.log(`[useDashboardData] ${pastOrPresentContests.length} contests remaining after filtering.`); // Removed log
-
-      setContests(pastOrPresentContests);
+      // Store the raw fetched contests
+      setRawContests(fetchedContests);
       setUserStatuses(res.data.userStatuses || {});
-      // Base isLastPage on the length of the *fetched* contests before filtering
+
+      // Base isLastPage on the length of the fetched contests
       const isLast = fetchedContests.length < 10;
-      // console.log(`[useDashboardData] Setting isLastPage to: ${isLast} (based on fetched ${fetchedContests.length} < 10)`); // Removed log
+      // console.log(`[useDashboardData] Setting isLastPage to: ${isLast}`);
       setIsLastPage(isLast);
 
-      // Store fetched data in cache
+      // Store raw data in cache
       dataCache.current[page] = {
-        contests: pastOrPresentContests,
+        rawContests: fetchedContests, // Store raw contests
         userStatuses: res.data.userStatuses || {},
         isLastPage: isLast,
       };
-      // console.log(`[useDashboardData] Stored data for page ${page} in cache.`); // Optional: Log cache store
+      // console.log(`[useDashboardData] Stored raw data for page ${page} in cache.`);
 
     } catch (err) {
       console.error('Dashboard data fetch error:', err);
@@ -75,13 +63,27 @@ const useDashboardData = () => {
     } finally {
       setLoading(false);
     }
-    // Add state setters to dependency array for safety, though they are stable.
     // dataCache is a ref, so it doesn't need to be in the dependency array.
-  }, [setLoading, setError, setContests, setUserStatuses, setIsLastPage]);
+  }, [setLoading, setError, setRawContests, setUserStatuses, setIsLastPage]); // Update dependencies
+
+  // Derive filtered contests (past/present) using useMemo
+  const filteredContests = useMemo(() => {
+    const now = new Date();
+    return rawContests.filter(contest => {
+      if (!contest.startTime) return false;
+      try {
+        return new Date(contest.startTime) <= now;
+      } catch (e) {
+        console.error("Error parsing contest startTime:", contest.startTime, e);
+        return false;
+      }
+    });
+  }, [rawContests]); // Recalculate when rawContests changes
 
   return {
-    contests,
-    setContests,
+    rawContests,        // Expose raw contests
+    filteredContests,   // Expose filtered contests (past/present)
+    setRawContests,     // Expose setter if needed externally (e.g., for search)
     userStatuses,
     setUserStatuses,
     loading,

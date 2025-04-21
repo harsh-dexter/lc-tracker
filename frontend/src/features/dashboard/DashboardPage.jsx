@@ -19,7 +19,8 @@ function DashboardPage() {
   const [searchLimit, setSearchLimit] = useState(DEFAULT_SEARCH_LIMIT);
 
   const {
-    contests,
+    rawContests,        // Get raw contests
+    filteredContests,   // Get filtered contests (past/present)
     userStatuses,
     setUserStatuses,
     loading,
@@ -29,7 +30,7 @@ function DashboardPage() {
     setCurrentPage,
     fetchDashboardData,
     clearCache // Get the clearCache function from the hook
-  } = useDashboardData(); // Use the hook from the dashboard feature
+  } = useDashboardData();
 
   const {
     searchQuery,
@@ -70,11 +71,11 @@ function DashboardPage() {
 
     if (updatedUser.hasLeetCodeKey) {
       try {
-        // Need to fetch contests again for the refresh function if not already loaded
-        // Or pass the currently loaded contests if available
-        const contestsToRefresh = isActiveSearch ? searchResults : contests;
-        if (contestsToRefresh.length > 0) {
-             const updatedStatuses = await refreshVisibleProblemStatuses(
+    // Need to refresh based on the contests currently displayed
+    // If searching, use searchResults. If not searching, use filteredContests.
+    const contestsToRefresh = isActiveSearch ? searchResults : filteredContests;
+    if (contestsToRefresh.length > 0) {
+         const updatedStatuses = await refreshVisibleProblemStatuses(
                updatedUser.id,
                contestsToRefresh // Use currently displayed contests
              );
@@ -98,7 +99,7 @@ function DashboardPage() {
 
     setTimeout(() => setStatusMessage(""), 3000);
     // Add clearCache to the dependency array
-  }, [fetchDashboardData, clearCache, contests, searchResults, isActiveSearch, setUser, setUserStatuses, setSearchUserStatuses, setCurrentPage]); 
+  }, [fetchDashboardData, clearCache, filteredContests, searchResults, isActiveSearch, setUser, setUserStatuses, setSearchUserStatuses, setCurrentPage]); // Use filteredContests
 
 
   // Handler for sync completion
@@ -113,7 +114,8 @@ function DashboardPage() {
   }, [isActiveSearch, setUserStatuses, setSearchUserStatuses]);
 
   // Determine which contests and statuses to display
-  const displayContests = isActiveSearch ? searchResults : contests;
+  // Use filteredContests for the main dashboard view when not searching
+  const displayContests = isActiveSearch ? searchResults : filteredContests;
   const displayStatuses = isActiveSearch ? searchUserStatuses : userStatuses;
   const displayError = error || (isActiveSearch ? searchError : '');
 

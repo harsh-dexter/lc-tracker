@@ -4,7 +4,7 @@ import { getDashboardData } from '../controllers/dashboardController.js';
 import { checkProblemStatus } from '../controllers/problemController.js';
 import { getContestVideos } from '../controllers/videoController.js';
 import { searchContestsAndProblems } from '../controllers/searchController.js';
-import { proxyLeetCodeRequest } from '../controllers/leetcodeController.js';
+import { proxyLeetCodeRequest, getRecentSubmissions } from '../controllers/leetcodeController.js'; // Import getRecentSubmissions
 import { clearProblemStatusCache } from '../controllers/adminController.js';
 import User from '../models/User.js';
 
@@ -57,6 +57,9 @@ router.get('/problem-status/:slug', ensureAuth, checkProblemStatus);
 
 // POST /api/leetcode-proxy - Proxy requests to LeetCode GraphQL API
 router.post('/leetcode-proxy', ensureAuth, proxyLeetCodeRequest);
+
+// GET /api/leetcode/submissions - Fetch recent submissions from LeetCode REST API
+router.get('/leetcode/submissions', ensureAuth, getRecentSubmissions);
 
 // =============================================================================
 // == YOUTUBE VIDEO ROUTES                                                    ==
